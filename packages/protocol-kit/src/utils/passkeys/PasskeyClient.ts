@@ -184,11 +184,17 @@ function extractSignature(signature: ArrayBuffer): [bigint, bigint] {
       throw new Error('invalid signature encoding')
     }
   }
-
+  
   // Decode the DER signature. Note that we assume that all lengths fit into 8-bit integers,
   // which is true for the kinds of signatures we are decoding but generally false. I.e. this
   // code should not be used in any serious application.
-  const view = new DataView(signature)
+  let view: DataView
+  try {
+    view = new DataView(signature)
+  } catch (e) {
+    console.warn('Failed to decode signature:', signature)
+    throw e
+  }
 
   // check that the sequence header is valid
   check(view.getUint8(0) === 0x30)
